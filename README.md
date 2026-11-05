@@ -1,29 +1,36 @@
 # Práctica 6 - Interacción en Realidad Virtual con XR Interaction Toolkit
 
+**Autores:** 
+1. **Javier Acosta Portocarrero** (alu0101660769@ull.edu.es)
+2. **Adrián Pérez Poleo** (alu0101635224@ull.edu.es)
+3. **Sergio Rosales Calzadilla** (alu0101635590@ull.edu.es)
 
-Esta práctica de la asignatura **Interfaces Inteligentes** se centra en la interacción en realidad virtual mediante el **XR Interaction Toolkit** de Unity. El toolkit separa la interacción en tres piezas: los **interactuadores** (*Interactors*), que son las manos o mandos del jugador y detectan los objetos con los que se puede interactuar; los **interactuables** (*Interactables*), que son los objetos de la escena que se pueden seleccionar o agarrar; y el **Interaction Manager**, que gestiona los eventos entre ambos. Sobre esta base se utilizan un **Ray Interactor**, que detecta objetos a distancia mediante un rayo, y un **Direct Interactor**, que detecta objetos por contacto mediante un collider. Todo el funcionamiento se prueba con el **simulador genérico del XR Interaction Toolkit**, sin necesidad de gafas.
+## Índice
 
----
+- [Introducción](#introducción)
+- [Configuración del proyecto](#configuración-del-proyecto)
+- [Configuración de la escena](#configuración-de-la-escena)
+  - [XR Origin](#xr-origin)
+  - [Interactuadores: Ray Interactor y Direct Interactor](#interactuadores-ray-interactor-y-direct-interactor)
+  - [Interaction Layers](#interaction-layers)
+  - [Interactuables](#interactuables)
+  - [Interfaz de usuario](#interfaz-de-usuario)
+- [Realización del Ejercicio](#realización-del-ejercicio)
+  - [Cubo y esfera: Ray Interactor que cambia de color](#cubo-y-esfera-ray-interactor-que-cambia-de-color)
+  - [Objeto de la Asset Store: Direct Interactor que actualiza la UI](#objeto-de-la-asset-store-direct-interactor-que-actualiza-la-ui)
+
+## Introducción
+
+Esta práctica de la asignatura **Interfaces Inteligentes** se centra en la interacción en realidad virtual mediante el **XR Interaction Toolkit** de Unity.
+
+El toolkit separa la interacción en tres piezas: los **interactuadores** (*Interactors*), que son las manos o mandos del jugador y detectan los objetos con los que se puede interactuar; los **interactuables** (*Interactables*), que son los objetos de la escena que se pueden seleccionar o agarrar; y el **Interaction Manager**, que gestiona los eventos entre ambos. Sobre esta base se utilizan un **Ray Interactor**, que detecta objetos a distancia mediante un rayo, y un **Direct Interactor**, que detecta objetos por contacto mediante un collider. Todo el funcionamiento se prueba con el **simulador genérico del XR Interaction Toolkit**, sin necesidad de gafas.
+
 
 ## Configuración del proyecto
 
-Se han instalado desde el *Package Manager* los siguientes paquetes:
+Se han instalado los paquetes esenciales (`XR Plugin Management`, `OpenXR`, `XR Interaction Toolkit` e `Input System`) y se han importado los **Starter Assets** y el **XR Interaction Simulator**. 
 
-| Paquete                       | Uso                                                                 |
-|-------------------------------|---------------------------------------------------------------------|
-| `XR Plugin Management`        | Gestiona qué plugin XR se carga en cada plataforma                  |
-| `OpenXR Plugin`               | Estándar de XR utilizado como plugin                                |
-| `XR Interaction Toolkit`      | Sistema de interactuadores, interactuables y eventos                |
-| `Input System`                | Sistema de entrada que usa el toolkit para leer los mandos          |
-
-Desde la pestaña *Samples* del XR Interaction Toolkit se han importado:
-
-- **Starter Assets**: contiene el `XR Origin (XR Rig)`, los prefabs de los interactuadores y el asset de acciones `XRI Default Input Actions`.
-- **XR Interaction Simulator**: simulador genérico que permite controlar la cabeza y los mandos con el teclado y el ratón.
-
-En *Project Settings > XR Plug-in Management* se ha activado **OpenXR** en la pestaña de Windows y, dentro de *OpenXR*, se han añadido los perfiles de interacción **Oculus Touch Controller Profile** y **Meta Quest Touch Plus Controller Profile**. El simulador está configurado en *XR Interaction Toolkit > Use XR Interaction Simulator in scenes* para que se instancie automáticamente al entrar en modo Play dentro del editor, por lo que no es necesario añadirlo a la escena.
-
-
+En los ajustes de OpenXR se configuraron los perfiles de los mandos de Meta/Oculus, y el simulador está ajustado para instanciarse automáticamente al entrar al modo Play en el editor.
 
 ## Configuración de la escena
 
@@ -33,26 +40,10 @@ En *Project Settings > XR Plug-in Management* se ha activado **OpenXR** en la pe
 2. Se añade el prefab **`XR Origin (XR Rig)`** de los *Starter Assets*. Es el cuerpo del jugador: define el suelo, la cámara (cabeza) y los dos mandos. Ya incluye la locomoción (`Locomotion Mediator`, movimiento continuo y `Teleportation Provider`).
 
 ### Interactuadores: Ray Interactor y Direct Interactor
+Para separar la interacción con objetos cercanos y lejanos, se desactivó el `Near-Far Interactor` que viene por defecto en el mando derecho y se sustituyó por dos interactuadores independientes:
 
-En la versión por defecto del toolkit, cada mando del `XR Origin` trae un único **Near-Far Interactor**, que combina la interacción cercana y lejana en un solo componente. Para trabajar con los interactuadores vistos en teoría y que cada objeto responda solo al que le corresponde, se ha sustituido en el mando derecho por un Ray Interactor y un Direct Interactor:
-
-1. Se desactiva el GameObject **`Near-Far Interactor`** de `Left Controller` y de `Right Controller`.
-2. Se añaden como hijos de `Right Controller` los prefabs **`Ray Interactor`** y **`Direct Interactor`** de *Starter Assets/Prefabs/Interactors*, con su `Transform` a (0, 0, 0) para que salgan de la posición del mando, y con **Handedness** en `Right`.
-3. Como estos prefabs vienen sin botones asignados, en *Input Configuration* de cada uno se asignan las acciones de `XRI Default Input Actions`:
-
-| Campo              | Acción                                                    | Interactuador  |
-|--------------------|-----------------------------------------------------------|----------------|
-| Select Input       | `XRI Right Interaction/Select` y `Select Value`           | Ray y Direct   |
-| Activate Input     | `XRI Right Interaction/Activate` y `Activate Value`       | Ray y Direct   |
-| UI Press Input     | `XRI Right Interaction/UI Press` y `UI Press Value`       | Ray            |
-
-4. En el componente **`Controller Input Action Manager`** de cada mando se deja el campo *Near-Far Interactor* en `None` y, en el mando derecho, se asigna el nuevo Ray Interactor en el campo *Ray Interactor*. Si no, este script vuelve a activar el Near-Far Interactor al terminar un teletransporte.
-5. En el **`XR Interaction Group`** del mando derecho se sustituye el Near-Far Interactor por el Direct Interactor y el Ray Interactor en *Starting Group Members*.
-
-Ajustes de cada interactuador:
-
-- **Ray Interactor**: *Max Raycast Distance* a **30**, ya que el valor por defecto (10 m) no alcanza los objetos más lejanos. En su `XR Interactor Line Visual` se aumenta el grosor de la línea (*Line Width* a 0.02) y se desactiva *Auto Adjust Line Length* para que el rayo sea visible en todo momento. La línea cambia de color al apuntar a un objeto interactuable.
-- **Direct Interactor**: detecta los objetos con un `Sphere Collider` marcado como *Is Trigger*. Su *Radius* define a qué distancia de la mano se puede coger un objeto.
+- **Ray Interactor**: Se le asignaron las acciones de *Select*, *Activate* y *UI Press*. Se amplió su alcance a 30 metros para llegar a los objetos del fondo y se ajustó la línea visual para que cambie de color al detectar un interactuable.
+- **Direct Interactor**: Utiliza un `Sphere Collider` en modo *Trigger* para detectar los objetos cercanos que tocan la mano. Se mapeó con las acciones de *Select* y *Activate*.
 
 ### Interaction Layers
 
@@ -84,13 +75,13 @@ Para mostrar mensajes dentro de la realidad virtual se utiliza un `Canvas` en mo
 
 ---
 
-## Ejercicio
+## Realización del Ejercicio
 
 > Agrega en la escena un cubo, una esfera y un objeto de la asset store que elijas sobre un plano, cada uno de ellos a diferentes distancias. El cubo y esfera serán Ray Interactor que cambian de color al seleccionarlo. El objeto de la asset store será un Direct Interactor que actualiza la UI al agarrarlo.
 
-Los objetos se colocan sobre el terreno de la escena a diferentes distancias del punto de inicio del jugador: la **pistola** (objeto de la Asset Store, del paquete *Low Poly Guns*) justo delante, al alcance de la mano; la **esfera** a unos 16 metros; y el **cubo** a unos 20 metros, de modo que solo se pueden alcanzar con el rayo.
+Los objetos están distribuidos así: la pistola (Asset Store) justo delante para alcanzarla con la mano, la esfera a 16 metros y el cubo a 20 metros. Toda la lógica funciona conectando métodos públicos a los **eventos predefinidos** del `XR Grab Interactable` desde el Inspector, sin usar colisiones por código.
 
-En los dos scripts la acción no se programa detectando la interacción por código, sino a través de los **eventos predefinidos** del `XR Grab Interactable` (*Interactable Events*). Siguiendo el esquema general de la interacción, el interactuador detecta el objeto (el rayo lo intersecta o la mano lo toca), el usuario pulsa el botón del mando y el interactuable recibe un evento que desencadena la acción. Los scripts solo contienen métodos públicos, que se enlazan a esos eventos desde el Inspector arrastrando el propio objeto y seleccionando el método.
+Siguiendo el esquema general de la interacción, el interactuador detecta el objeto (el rayo lo intersecta o la mano lo toca), el usuario pulsa el botón del mando y el interactuable recibe un evento que desencadena la acción. Los scripts solo contienen métodos públicos, que se enlazan a esos eventos desde el Inspector arrastrando el propio objeto y seleccionando el método.
 
 ### Cubo y esfera: Ray Interactor que cambia de color
 
@@ -122,9 +113,3 @@ Como la pistola está en la capa `Directo`, solo se puede coger con el Direct In
 Script: [Assets/Scripts/Practica6/xr_actualizar_ui_agarre.cs](Assets/Scripts/Practica6/xr_actualizar_ui_agarre.cs)
 
 ![](Gifs/funcionamiento_direct_interactor_objeto_asset.gif)
-
-
-**Autores:** 
-1. Javier Acosta Portocarrero (alu0101660769@ull.edu.es)
-2. Adrián Pérez Poleo (alu0101635224@ull.edu.es)
-3. Sergio Rosales Calzadilla (alu0101635590@ull.edu.es)
