@@ -1,8 +1,8 @@
 # Práctica 6 - Interacción en Realidad Virtual con XR Interaction Toolkit
 
 **Autores:** 
-1. **Javier Acosta Portocarrero** (alu0101660769@ull.edu.es)
-2. **Adrián Pérez Poleo** (alu0101635224@ull.edu.es)
+1. **Adrián Pérez Poleo** (alu0101635224@ull.edu.es)
+2. **Javier Acosta Portocarrero** (alu0101660769@ull.edu.es)
 3. **Sergio Rosales Calzadilla** (alu0101635590@ull.edu.es)
 
 ## Índice
